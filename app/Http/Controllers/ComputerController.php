@@ -23,6 +23,44 @@ class ComputerController extends Controller
         return view('computer');
     }
 
+    public function total()
+    {
+        $comps = Article_pc::orderBy('year')->get();
+        $current = Carbon::now();
+        $closed = Carbon::create(2019,6,21,16,0,0);
+        
+        //проверка брони
+        foreach ($comps as &$pc){
+            $r_pc = new Rate_pc;
+            if ($r_pc->where('pc_id', $pc->id)->count()) { //суммируем сумму перекупок
+
+                $last_booking = $r_pc->where('pc_id', $pc->id)->orderBy('id','desc')->first(); //последняя запись о брони/перекупке
+                $r_sum = $r_pc->where('pc_id', $pc->id)->confirmed()->sum('price'); //сумма всех заявок для брони
+                $pc->total_price = $pc->start_price + $r_sum;    //прибавляем к начальной стоимости
+                if ($last_booking->confirmed){
+                    $pc->is_booked = true; //ставим пометку о перекупе
+                } else { 
+                    if ($last_booking->hash) { $pc->reserved = true; } 
+                    $pc->is_booked = false; 
+                }
+
+                $pc->booked_user = $last_booking->username; //кто последний купил
+                $pc->booked_filial = $last_booking->area; //кто последний купил
+                $pc->booked_date = $last_booking->created_at; //когда забронировали/перекупили
+                $pc->booked_confirm_date = $last_booking->updated_at->format('d.m.Y (H:m:s)'); //когда подтвердил
+                $pc->booked_count = $r_pc->where('pc_id', $pc->id)->count();
+
+                $d_plus10 = (new Carbon($pc->booked_date))->addDays(30); //+3 часа
+                $pc->booked_end_days = $current->diffInDays($d_plus10, false); //дней до закрытия брони
+                $pc->booked_end_date = $d_plus10->format('d.m.Y (H:m)'); //дата закрытия брони
+            }
+            $pc->booked_closed = $current->greaterThan($closed);
+        }
+        unset($pc);
+        // dd($comps);
+        return view('totalpc', compact('comps'));
+    }
+
     public function json()
     {
         $comps = Article_pc::orderBy('year')->get();

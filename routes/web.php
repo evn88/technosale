@@ -29,6 +29,9 @@ Route::resource('/orgtech', 'OrgtechController', ['only' => [
     'index', 'store'
 ]]);
 
+Route::get('/computer/total', 'ComputerController@total');
+Route::get('/orgtech/total', 'OrgtechController@total');
+
 
 Route::get('/mailconfirm/{hash}/{type}/', 'MailController@mailconfirm')->name('mailconfirm');
 
