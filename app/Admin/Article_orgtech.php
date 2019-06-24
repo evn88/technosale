@@ -11,6 +11,7 @@ AdminSection::registerModel(Article_orgtech::class, function(ModelConfiguration 
         $display->setFilters(
             AdminDisplayFilter::field('filial')->setTitle('Филиал [:value]')
         );
+        $display->disablePagination(true);
 
         $display->setColumns([
                    AdminColumn::checkbox(),

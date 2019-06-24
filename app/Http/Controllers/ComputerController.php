@@ -47,7 +47,7 @@ class ComputerController extends Controller
                 $pc->booked_user = $last_booking->username; //кто последний купил
                 $pc->booked_filial = $last_booking->area; //кто последний купил
                 $pc->booked_date = $last_booking->created_at; //когда забронировали/перекупили
-                $pc->booked_confirm_date = $last_booking->updated_at->format('d.m.Y (H:m:s)'); //когда подтвердил
+                $pc->booked_confirm_date = $last_booking->updated_at; //когда подтвердил
                 $pc->booked_count = $r_pc->where('pc_id', $pc->id)->count();
 
                 $d_plus10 = (new Carbon($pc->booked_date))->addDays(30); //+3 часа

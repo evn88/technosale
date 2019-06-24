@@ -23,6 +23,42 @@ class OrgtechController extends Controller
         return view('orgtech');
     }
 
+    public function total(){
+        $orgtechs = Article_orgtech::orderBy('year')->get();
+        $current = Carbon::now();
+        $closed = Carbon::create(2019,6,21,16,0,0);
+
+        //проверка брони
+        foreach ($orgtechs as &$org){
+            $r_org = new Rate_orgtech;
+            if ($r_org->where('orgtech_id', $org->id)->count()) { //суммируем сумму перекупок
+                
+                $last_booking = $r_org->where('orgtech_id', $org->id)->orderBy('id','desc')->first(); //последняя запись о брони/перекупке
+                $r_sum = $r_org->where('orgtech_id', $org->id)->confirmed()->sum('price'); //сумма всех заявок для брони
+                $org->total_price = $org->start_price + $r_sum;    //прибавляем к начальной стоимости
+                if ($last_booking->confirmed){
+                    $org->is_booked = true; //ставим пометку о перекупе
+                } else {
+                    if ($last_booking->hash) { $org->reserved = true; }
+                    $org->is_booked = false; //ставим пометку о перекупе
+                }
+
+                $org->booked_user = $last_booking->username; //кто последний купил
+                $org->booked_filial = $last_booking->area; //кто последний купил
+                $org->booked_date = $last_booking->created_at; //когда забронировали/перекупили
+                $org->booked_confirm_date =  $last_booking->updated_at; //когда подтвердил
+                $org->booked_count = $r_org->where('orgtech_id', $org->id)->count();
+                
+                $d_plus10 = (new Carbon($org->booked_date))->addDays(30);
+                $org->booked_end_days = $current->diffInDays($d_plus10, false); //дней до закрытия брони
+                $org->booked_end_date = $d_plus10->format('d.m.Y'); //дата закрытия брони
+            }
+            $org->booked_closed = $current->greaterThan($closed);
+        }
+        unset($org);
+        return view('totalorg', compact('orgtechs'));
+    }
+
     public function json()
     {
         $orgtechs = Article_orgtech::orderBy('year')->get();

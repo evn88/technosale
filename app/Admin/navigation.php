@@ -28,11 +28,17 @@ return [
         'url'   => '/',
     ],
 
-    // [
-    //     'title' => 'Тест почты',
-    //     'icon'  => 'fa fa-envelope-open',
-    //     'url'   => '/mailtest',
-    // ],
+    [
+        'title' => 'Отчет по компьютерам',
+        'icon'  => 'fa fa-file-text-o',
+        'url'   => '/computer/total',
+    ],
+
+    [
+        'title' => 'Отчет по оргтехнике',
+        'icon'  => 'fa fa-file-text-o',
+        'url'   => '/orgtech/total',
+    ],
 
     [
         'title' => 'Компьютеры',
