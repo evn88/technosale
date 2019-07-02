@@ -2,7 +2,8 @@
 
 Веб-приложение для продажи техники по принципу аукциона.
 
-![screen](/public/images/uploads/screen.png)
+![screen](/public/images/screen.png)
+<!-- https://github.com/evn88/technosale/blob/master/public/images/screen.png -->
 
 Возможности: 
 - Бронировать технику пользователем без регистрации, но с подтверждением эл. почты;
