@@ -37,6 +37,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
+        //Закоментируй чтобы зарегистрировать первого пользователя
         $this->middleware('auth');
     }
 
