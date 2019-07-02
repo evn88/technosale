@@ -31,9 +31,9 @@
 </pre>
 Подробнее о Supervisor читайте в его [документации](http://supervisord.org/index.html).
 
-10. После создания файла настроек вы можете обновить конфигурацию Supervisor и запустить процесс при помощи следующих команд:
-    <code>sudo supervisorctl reread</code>
-    <code>sudo supervisorctl update</code>
+10. После создания файла настроек вы можете обновить конфигурацию Supervisor и запустить процесс при помощи следующих команд: <br>
+    <code>sudo supervisorctl reread</code><br>
+    <code>sudo supervisorctl update</code><br>
     <code>sudo supervisorctl start laravel-worker:*</code>
 
 11. Для входа в админку вам потребуется создать учетную запись. Регистрация по умолчанию доступна только авторизованным пользователям, что бы исправить это перейдите в <code>\app\Http\Controllers\Auth\RegisterController.php </code>
