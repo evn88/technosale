@@ -31,17 +31,17 @@
 </pre>
 Подробнее о Supervisor читайте в его [документации](http://supervisord.org/index.html).
 
-9. После создания файла настроек вы можете обновить конфигурацию Supervisor и запустить процесс при помощи следующих команд:
+10. После создания файла настроек вы можете обновить конфигурацию Supervisor и запустить процесс при помощи следующих команд:
     <code>sudo supervisorctl reread</code>
     <code>sudo supervisorctl update</code>
     <code>sudo supervisorctl start laravel-worker:*</code>
 
-10. Для входа в админку вам потребуется создать учетную запись. Регистрация по умолчанию доступна только авторизованным пользователям, что бы исправить это перейдите в <code>\app\Http\Controllers\Auth\RegisterController.php </code>
+11. Для входа в админку вам потребуется создать учетную запись. Регистрация по умолчанию доступна только авторизованным пользователям, что бы исправить это перейдите в <code>\app\Http\Controllers\Auth\RegisterController.php </code>
     Закомментируйте в конструкторе строку:
     <code>$this->middleware('auth');</code>
     Это позволит вам зарегистрировать пользователя по адресу [Адрес сайта]/register
 
-11. Заключительным этапом необходимо загрузить данные о продаваемой технике. Компьютеры и оргтехника разделены и никак не связанны. Для загрузки данных используйте HediSQL или phpMyAdmin импортируя файлы <b>.csv</b> в таблицы <code>article_pc</code> и <code>article_orgtech</code> соответственно.
+12. Заключительным этапом необходимо загрузить данные о продаваемой технике. Компьютеры и оргтехника разделены и никак не связанны. Для загрузки данных используйте HediSQL или phpMyAdmin импортируя файлы <b>.csv</b> в таблицы <code>article_pc</code> и <code>article_orgtech</code> соответственно.
 ## License
 
 open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
