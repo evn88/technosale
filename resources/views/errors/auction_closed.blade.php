@@ -9,7 +9,8 @@
 
                 <div class="card-body">
                     <div class="alert alert-danger">
-                        <h4>Аукцион закрыт с 21.06.2019 16:00</h4>
+                    <h4>Аукцион закрыт!</h4>
+                    <p>Аукцион работает только в период с {{ $open }} по {{ $closed }}</p>
                     </div>
                 </div>
             </div>

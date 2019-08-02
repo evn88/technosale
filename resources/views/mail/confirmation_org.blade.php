@@ -14,7 +14,7 @@
                 в ином случае она будет аннулирована через 5 минут</b>
             </p>
 
-            <a href="http://web.voenet.local/technosale/public/mailconfirm/{{ $hash }}/org/" 
+            <a href="https://portal.voel.ru/technosale/public/mailconfirm/{{ $hash }}/org/" 
                 style="display:table; padding:15px; margin:20px; color:royalblue; text-align:center; border-radius:20px; height:10px; border:8px solid royalblue;">ПОДТВЕРДИТЬ СТАВКУ</a>
             <div style="padding:15px; margin:20px;">
                 <p>После подтверждения вам придет уведомление.</p>

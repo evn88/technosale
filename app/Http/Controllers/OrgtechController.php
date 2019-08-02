@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Log;
 
 class OrgtechController extends Controller
 {
+    private function current_data() { return Carbon::now(); }
+    private function open_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', env('AUCTION_OPEN_DATA')); }
+    private function closed_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', env('AUCTION_CLOSED_DATA')); }
+
     /**
      * Display a listing of the resource.
      *
@@ -25,8 +29,8 @@ class OrgtechController extends Controller
 
     public function total(){
         $orgtechs = Article_orgtech::orderBy('year')->get();
-        $current = Carbon::now();
-        $closed = Carbon::create(2019,6,21,16,0,0);
+        // $current = Carbon::now();
+        // $closed = Carbon::createFromFormat('d.m.Y H:i:s', env('AUCTION_CLOSED_DATA'));
 
         //проверка брони
         foreach ($orgtechs as &$org){
@@ -50,10 +54,10 @@ class OrgtechController extends Controller
                 $org->booked_count = $r_org->where('orgtech_id', $org->id)->count();
                 
                 $d_plus10 = (new Carbon($org->booked_date))->addDays(30);
-                $org->booked_end_days = $current->diffInDays($d_plus10, false); //дней до закрытия брони
+                $org->booked_end_days = $this->current_data()->diffInDays($d_plus10, false); //дней до закрытия брони
                 $org->booked_end_date = $d_plus10->format('d.m.Y'); //дата закрытия брони
             }
-            $org->booked_closed = $current->greaterThan($closed);
+            // $org->booked_closed = $this->current_data()->greaterThan($this->closed_auction());
         }
         unset($org);
         return view('totalorg', compact('orgtechs'));
@@ -62,8 +66,6 @@ class OrgtechController extends Controller
     public function json()
     {
         $orgtechs = Article_orgtech::orderBy('year')->get();
-        $current = Carbon::now();
-        $closed = Carbon::create(2019,6,21,16,0,0);
 
         //проверка брони
         foreach ($orgtechs as &$org){
@@ -83,11 +85,11 @@ class OrgtechController extends Controller
                 $org->booked_user = $last_booking->username; //кто последний купил
                 $org->booked_date = $last_booking->created_at; //когда забронировали/перекупили
                 
-                $d_plus10 = (new Carbon($org->booked_date))->addDays(30);
-                $org->booked_end_days = $current->diffInDays($d_plus10, false); //дней до закрытия брони
-                $org->booked_end_date = $d_plus10->format('d.m.Y'); //дата закрытия брони
+                // $d_plus10 = (new Carbon($org->booked_date))->addDays(30);
+                // $org->booked_end_days = $this->current_data()->diffInDays($d_plus10, false); //дней до закрытия брони
+                // $org->booked_end_date = $d_plus10->format('d.m.Y (H:m)'); //дата закрытия брони
             }
-            $org->booked_closed = $current->greaterThan($closed);
+            if($this->current_data()->lessThan($this->open_auction()) || $this->current_data()->greaterThan($this->closed_auction())) $pc->booked_closed = true;
         }
         unset($org);
 
@@ -112,9 +114,8 @@ class OrgtechController extends Controller
      */
     public function store(Request $request)
     {
-        $current = Carbon::now();
-        $closed = Carbon::create(2019,6,21,16,0,0);
-
+        // $current = Carbon::now();
+        // $closed = Carbon::createFromFormat('d.m.Y H:i:s', env('AUCTION_CLOSED_DATA'));
         $v = Validator::make($request->all(), [
                 'orgtech_id' => 'required|integer',
                 'username'  => 'required|max:255',
@@ -132,7 +133,7 @@ class OrgtechController extends Controller
         }
 
         
-        if(!$current->greaterThan($closed)){
+        if(!($this->current_data()->lessThan($this->open_auction()) || $this->current_data()->greaterThan($this->closed_auction()))) {
             $last_booking = Rate_orgtech::where('orgtech_id', $request->orgtech_id)->orderBy('id', 'desc')->first();
             if($last_booking){
                 $last_user_email = $last_booking->email;
@@ -195,11 +196,15 @@ class OrgtechController extends Controller
                     'price' => $org->price,   
                 ])
             );
+            
             //запускаем через 5 минут проверку, если не подтвердили удаляем запись.
             dispatch(new DeleteNotConfirmed($org->hash, 'org'))->delay(Carbon::now()->addMinutes(5));
             return redirect(route('orgtech.index'));
         }
-        return view('errors.auction_closed');
+        return view('errors.auction_closed', [
+            'closed' => $this->closed_auction()->format('d.m.Y H:m:s'),
+            'open'   => $this->open_auction()->format('d.m.Y H:m:s')
+        ]);
     }
 
     /**

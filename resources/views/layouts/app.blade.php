@@ -57,7 +57,7 @@
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                             <li class="nav-item">
-                                    <span class="nav-link alert-danger">Аукцион закрывается  21.06.2019 в 16:00</span>
+                                    <span class="nav-link alert-info">Работает с {{env('AUCTION_OPEN_DATA')}} по {{env('AUCTION_CLOSED_DATA')}}</span>
                             </li>
                         <!-- Authentication Links -->
                         @guest
