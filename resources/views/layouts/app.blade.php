@@ -57,7 +57,7 @@
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                             <li class="nav-item">
-                                    <span class="nav-link alert-info">Работает с {{env('AUCTION_OPEN_DATA')}} по {{env('AUCTION_CLOSED_DATA')}}</span>
+                                <span class="nav-link alert-info">Работает с {{env('AUCTION_OPEN_DATA')}} по {{env('AUCTION_CLOSED_DATA')}}</span>
                             </li>
                         <!-- Authentication Links -->
                         @guest
@@ -79,7 +79,7 @@
                                     <a class="dropdown-item" href="{{ route('register') }}">
                                         Регистрация нового пользователя
                                     </a>
-                                    <a class="dropdown-item" href="/technosale/public/admin">
+                                    <a class="dropdown-item" href="/technosale/admin">
                                         Админка
                                     </a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"

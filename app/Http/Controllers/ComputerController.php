@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Validator;
 use App\Rate_pc;
 use App\Article_pc;
+use App\Config;
 use App\Jobs\SendEmailComputers;
 use App\Jobs\DeleteNotConfirmed;
 use App\Jobs\SendEmailRawMessage;
@@ -13,9 +14,16 @@ use Illuminate\Support\Facades\Log;
 
 class ComputerController extends Controller
 {
+    private function config($n) { 
+        if ($n) {
+            return Config::where('name', $n)->first()->param; 
+        } else  {
+            return NULL;
+        }
+    }
     private function current_data() { return Carbon::now(); }
-    private function open_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', env('AUCTION_OPEN_DATA')); }
-    private function closed_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', env('AUCTION_CLOSED_DATA')); }
+    private function open_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', $this->config('AUCTION_OPEN_DATA')); }
+    private function closed_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', $this->config('AUCTION_CLOSED_DATA')); }
     /**
      * Display a listing of the resource.
      *
@@ -23,6 +31,7 @@ class ComputerController extends Controller
      */
     public function index()
     {
+        //dd($this->config('AUCTION_OPEN_DATA'));
         return view('computer');
     }
 
@@ -51,11 +60,7 @@ class ComputerController extends Controller
                 $pc->booked_confirm_date = $last_booking->updated_at; //когда подтвердил
                 $pc->booked_count = $r_pc->where('pc_id', $pc->id)->count();
 
-                $d_plus10 = (new Carbon($pc->booked_date))->addDays(30); //+3 часа
-                $pc->booked_end_days = $this->current_data()->diffInDays($d_plus10, false); //дней до закрытия брони
-                $pc->booked_end_date = $d_plus10->format('d.m.Y (H:m)'); //дата закрытия брони
             }
-            // $pc->booked_closed = $this->current_data()->greaterThan($this->closed_auction());
         }
         unset($pc);
         return view('totalpc', compact('comps'));
@@ -83,9 +88,6 @@ class ComputerController extends Controller
                 $pc->booked_user = $last_booking->username; //кто последний купил
                 $pc->booked_date = $last_booking->created_at; //когда забронировали/перекупили
 
-                // $d_plus10 = (new Carbon($pc->booked_date))->addDays(30); //+3 часа
-                // $pc->booked_end_days = $this->current_data()->diffInDays($d_plus10, false); //дней до закрытия брони
-                // $pc->booked_end_date = $d_plus10->format('d.m.Y (H:m)'); //дата закрытия брони
             }
             if($this->current_data()->lessThan($this->open_auction()) || $this->current_data()->greaterThan($this->closed_auction())) $pc->booked_closed = true;
         }
@@ -196,7 +198,7 @@ class ComputerController extends Controller
             );
             
             //запускаем через 5 минут проверку, если не подтвердили удаляем запись.
-            dispatch(new DeleteNotConfirmed($pc->hash, 'pc'))->delay(Carbon::now()->addMinutes(5));
+            dispatch(new DeleteNotConfirmed($pc->hash, 'pc'))->delay(Carbon::now()->addMinutes($this->config('TIME_CONFIRMATION')));
             return redirect(route('computer.index'));
         }
         return view('errors.auction_closed', [

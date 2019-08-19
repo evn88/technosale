@@ -13,6 +13,7 @@ use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Log;
 use App\Rate_pc;
 use App\Article_pc;
+use DaveJamesMiller\Breadcrumbs\Exception;
 
 class SendEmailComputers implements ShouldQueue
 {
@@ -47,7 +48,7 @@ class SendEmailComputers implements ShouldQueue
             $message->to($this->data['email'])->subject('Подтверждение ставки');
             // $message->cc('e.vershkov@voel.ru');
         });
-        Log::info('send mail computers ok: '.$this->data['email']);
-    }
 
+        Log::info('send mail computers ok: '.$this->data['email']. ' '. $this->data['comp'] );
+    }
 }

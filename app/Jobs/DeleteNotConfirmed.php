@@ -46,16 +46,16 @@ class DeleteNotConfirmed implements ShouldQueue
         Log::info('delete lot handle hash: '.$this->hash);
         Log::info('delete lot handle email: '.$this->email);
         if(!$data[0]['confirmed']){
+            $pc->where('hash', $this->hash)->delete();
+            Log::info('Lot deleted '. $this->hash);
+
             Mail::raw('Ваша ставка была удалена так как вы не прошли подтверждение', function($message)
             {
                 $message->from('service.informer@corp.voel.ru', 'Сервис бронирования техники');
                 $message->to($this->email)->subject('Ставка удалена');
             });
-
-            $pc->where('hash', $this->hash)->delete();
-            Log::info('Lot deleted');
         } else {
-            Log::info('Lot NOT deleted');
+            Log::info('Lot NOT deleted '. $this->hash);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Validator;
 use App\Rate_orgtech;
 use App\Article_orgtech;
+use App\Config;
 use App\Jobs\SendEmailOrgtech;
 use App\Jobs\DeleteNotConfirmed;
 use App\Jobs\SendEmailRawMessage;
@@ -13,10 +14,16 @@ use Illuminate\Support\Facades\Log;
 
 class OrgtechController extends Controller
 {
+    private function config($n) { 
+        if ($n) {
+            return Config::where('name', $n)->first()->param; 
+        } else  {
+            return NULL;
+        }
+    }
     private function current_data() { return Carbon::now(); }
-    private function open_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', env('AUCTION_OPEN_DATA')); }
-    private function closed_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', env('AUCTION_CLOSED_DATA')); }
-
+    private function open_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', $this->config('AUCTION_OPEN_DATA')); }
+    private function closed_auction() { return Carbon::createFromFormat('d.m.Y H:i:s', $this->config('AUCTION_CLOSED_DATA')); }
     /**
      * Display a listing of the resource.
      *
@@ -29,8 +36,6 @@ class OrgtechController extends Controller
 
     public function total(){
         $orgtechs = Article_orgtech::orderBy('year')->get();
-        // $current = Carbon::now();
-        // $closed = Carbon::createFromFormat('d.m.Y H:i:s', env('AUCTION_CLOSED_DATA'));
 
         //проверка брони
         foreach ($orgtechs as &$org){
@@ -53,11 +58,7 @@ class OrgtechController extends Controller
                 $org->booked_confirm_date =  $last_booking->updated_at; //когда подтвердил
                 $org->booked_count = $r_org->where('orgtech_id', $org->id)->count();
                 
-                $d_plus10 = (new Carbon($org->booked_date))->addDays(30);
-                $org->booked_end_days = $this->current_data()->diffInDays($d_plus10, false); //дней до закрытия брони
-                $org->booked_end_date = $d_plus10->format('d.m.Y'); //дата закрытия брони
             }
-            // $org->booked_closed = $this->current_data()->greaterThan($this->closed_auction());
         }
         unset($org);
         return view('totalorg', compact('orgtechs'));
@@ -198,7 +199,7 @@ class OrgtechController extends Controller
             );
             
             //запускаем через 5 минут проверку, если не подтвердили удаляем запись.
-            dispatch(new DeleteNotConfirmed($org->hash, 'org'))->delay(Carbon::now()->addMinutes(5));
+            dispatch(new DeleteNotConfirmed($org->hash, 'org'))->delay(Carbon::now()->addMinutes($this->config('TIME_CONFIRMATION')));
             return redirect(route('orgtech.index'));
         }
         return view('errors.auction_closed', [
