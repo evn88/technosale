@@ -79,7 +79,7 @@
                                     <a class="dropdown-item" href="{{ route('register') }}">
                                         Регистрация нового пользователя
                                     </a>
-                                    <a class="dropdown-item" href="/technosale/admin">
+                                    <a class="dropdown-item" href="{{ url('/admin') }}">
                                         Админка
                                     </a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
