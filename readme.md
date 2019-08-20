@@ -24,13 +24,13 @@
 <pre>
    [program:laravel-worker-auction]
     process_name=%(program_name)s_%(process_num)02d
-    command=php /data/wwwroot/[ПУТЬ ДО ПРИЛОЖЕНИЯ]/technosale/artisan queue:work --sleep=3 --tries=3 --daemon
+    command=php /var/www/[ПУТЬ ДО ПРИЛОЖЕНИЯ]/technosale/artisan queue:work --sleep=3 --tries=3 --daemon
     autostart=true
     autorestart=true
     user=www-data
     numprocs=4
     redirect_stderr=true
-    stdout_logfile=/data/wwwroot/[ПУТЬ ДО ПРИЛОЖЕНИЯ]/technosale/storage/logs/worker.log
+    stdout_logfile=/var/www/[ПУТЬ ДО ПРИЛОЖЕНИЯ]/technosale/storage/logs/worker.log
 </pre>
 Подробнее о Supervisor читайте в его [документации](http://supervisord.org/index.html).
 
