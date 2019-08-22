@@ -85,27 +85,14 @@ class OrgtechController extends Controller
 
                 $org->booked_user = $last_booking->username; //кто последний купил
                 $org->booked_date = $last_booking->created_at; //когда забронировали/перекупили
-                
-                // $d_plus10 = (new Carbon($org->booked_date))->addDays(30);
-                // $org->booked_end_days = $this->current_data()->diffInDays($d_plus10, false); //дней до закрытия брони
-                // $org->booked_end_date = $d_plus10->format('d.m.Y (H:m)'); //дата закрытия брони
             }
-            if($this->current_data()->lessThan($this->open_auction()) || $this->current_data()->greaterThan($this->closed_auction())) $pc->booked_closed = true;
+            if($this->current_data()->lessThan($this->open_auction()) || $this->current_data()->greaterThan($this->closed_auction())) $org->booked_closed = true;
         }
         unset($org);
 
         return $orgtechs->toJson();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -219,37 +206,4 @@ class OrgtechController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }
