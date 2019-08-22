@@ -13,6 +13,7 @@ use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Log;
 use App\Rate_orgtech;
 use App\Article_orgtech;
+use App\Config;
 
 class SendEmailOrgtech implements ShouldQueue
 {
@@ -32,6 +33,7 @@ class SendEmailOrgtech implements ShouldQueue
         $this->data['price'] = $r_org->where('orgtech_id', $data['org_id'])->sum('price') +  $this->data['org']['start_price'];
         $last_booking = $r_org->where('orgtech_id', $data['org_id'])->orderBy('id','desc')->first(); //последняя запись о брони/перекупке
         $this->data['hash'] = $last_booking->hash;
+        $this->data['time'] = Config::where('name', 'TIME_CONFIRMATION')->first()->param;
     }
 
     /**

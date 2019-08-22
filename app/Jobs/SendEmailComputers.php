@@ -13,7 +13,8 @@ use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Log;
 use App\Rate_pc;
 use App\Article_pc;
-use DaveJamesMiller\Breadcrumbs\Exception;
+use App\Config;
+// use DaveJamesMiller\Breadcrumbs\Exception;
 
 class SendEmailComputers implements ShouldQueue
 {
@@ -33,6 +34,7 @@ class SendEmailComputers implements ShouldQueue
         $this->data['price'] = $r_pc->where('pc_id', $data['pc_id'])->sum('price') +  $this->data['comp']['start_price'];
         $last_booking = $r_pc->where('pc_id', $data['pc_id'])->orderBy('id','desc')->first(); //последняя запись о брони/перекупке
         $this->data['hash'] = $last_booking->hash;
+        $this->data['time'] = Config::where('name', 'TIME_CONFIRMATION')->first()->param;
     }
 
     /**

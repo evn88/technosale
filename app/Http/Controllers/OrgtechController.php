@@ -152,7 +152,7 @@ class OrgtechController extends Controller
                                'message' => '
                                 Пользователь: '. $request->username .', только что сделал ставку на ваш лот:
                                 -----------------------------------------       
-                                ' . $org_info->inventar .' 
+                                '. $org_info->inventar .' 
                                 '. $org_info->type .'
                                 '. $org_info->model .'
                                 -----------------------------------------',   
@@ -171,7 +171,7 @@ class OrgtechController extends Controller
             $org->area = $request->area;
             $org->email = $request->email;
             $org->ip = $request->ip;
-            $org->hash = hash('sha256', $request->ip.'_'.$request->email.'_'.$current);
+            $org->hash = hash('sha256', $request->ip.'_'.$request->email .'_'. $this->current_data());
             (Rate_orgtech::where('orgtech_id', $request->orgtech_id)->count()) ? $org->price = 500 : $org->price = 0;
             $org->save();   
     

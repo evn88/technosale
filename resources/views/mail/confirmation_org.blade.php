@@ -11,11 +11,12 @@
     <p style="color:slategrey; font-size:13px;">Пользователь: {{ $username }}</p>
         <div class="box">
             <p style="padding:15px;"><b>Для продолжения необходимо "подтвердить ставку", 
-                в ином случае она будет аннулирована через 5 минут</b>
+                в ином случае она будет аннулирована через 1 мин.</b>
             </p>
 
             <a href="https://portal.voel.ru/technosale/mailconfirm/{{ $hash }}/org/" 
                 style="display:table; padding:15px; margin:20px; color:royalblue; text-align:center; border-radius:20px; height:10px; border:8px solid royalblue;">ПОДТВЕРДИТЬ СТАВКУ</a>
+            <br>
             <div style="padding:15px; margin:20px;">
                 <p>После подтверждения вам придет уведомление.</p>
                 <p>Если на ваш лот сделет ставку другой сотрудник, вы также получите уведомление на e-mail.</p>
