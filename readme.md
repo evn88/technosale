@@ -18,9 +18,10 @@
 4. <code>npm install</code>
 5. <code>php artisan vendor:publish --tag=assets --force</code>
 6. <code>php artisan migrate</code>
-7. Аукцион использует очереди и Supervisor https://laravel.ru/docs/v5/queues
-8. Установите Supervisor <code>sudo apt-get install supervisor</code>
-9. Файлы настроек Supervisor обычно находятся в папке /etc/supervisor/conf.d. Там вы можете создать любое количество файлов с настройками, по которым Supervisor поймёт, как отслеживать ваши процессы. Для работы аукциона, создадим файл laravel-worker-auction.conf, который запускает и наблюдает за процессом queue:work:
+7. <code>php artisan db:seed</code>
+8. Аукцион использует очереди и Supervisor https://laravel.ru/docs/v5/queues
+9. Установите Supervisor <code>sudo apt-get install supervisor</code>
+10. Файлы настроек Supervisor обычно находятся в папке /etc/supervisor/conf.d. Там вы можете создать любое количество файлов с настройками, по которым Supervisor поймёт, как отслеживать ваши процессы. Для работы аукциона, создадим файл laravel-worker-auction.conf, который запускает и наблюдает за процессом queue:work:
 <pre>
    [program:laravel-worker-auction]
     process_name=%(program_name)s_%(process_num)02d
