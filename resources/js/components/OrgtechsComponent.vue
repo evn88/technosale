@@ -31,7 +31,7 @@
                     <tbody>
                         <!-- @foreach($comps as $pc) -->
 
-                        <tr v-for="item in items.data">
+                        <tr v-for="item in items.data" v-bind:key="item.id">
                             <td>{{ item.filial }}</td>
                             <td align="center">{{ item.inventar }}</td>
                             <td>{{ item.model }}</td>
