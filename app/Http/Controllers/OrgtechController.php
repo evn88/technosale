@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Log;
 
 class OrgtechController extends Controller
 {
-    private function config($n) { 
+    private function config($n) {
         if ($n) {
-            return Config::where('name', $n)->first()->param; 
+            return Config::where('name', $n)->first()->param;
         } else  {
             return NULL;
         }
@@ -31,7 +31,9 @@ class OrgtechController extends Controller
      */
     public function index()
     {
-        return view('orgtech');
+        return view('orgtech',[
+            'conf' => 'Открытие: ' .$this->config('AUCTION_OPEN_DATA'). ' | Закрытие: ' . $this->config('AUCTION_CLOSED_DATA')
+        ]);
     }
 
     public function total(){
@@ -41,7 +43,7 @@ class OrgtechController extends Controller
         foreach ($orgtechs as &$org){
             $r_org = new Rate_orgtech;
             if ($r_org->where('orgtech_id', $org->id)->count()) { //суммируем сумму перекупок
-                
+
                 $last_booking = $r_org->where('orgtech_id', $org->id)->orderBy('id','desc')->first(); //последняя запись о брони/перекупке
                 $r_sum = $r_org->where('orgtech_id', $org->id)->confirmed()->sum('price'); //сумма всех заявок для брони
                 $org->total_price = $org->start_price + $r_sum;    //прибавляем к начальной стоимости
@@ -57,7 +59,7 @@ class OrgtechController extends Controller
                 $org->booked_date = $last_booking->created_at; //когда забронировали/перекупили
                 $org->booked_confirm_date =  $last_booking->updated_at; //когда подтвердил
                 $org->booked_count = $r_org->where('orgtech_id', $org->id)->count();
-                
+
             }
         }
         unset($org);
@@ -72,7 +74,7 @@ class OrgtechController extends Controller
         foreach ($orgtechs as &$org){
             $r_org = new Rate_orgtech;
             if ($r_org->where('orgtech_id', $org->id)->count()) { //суммируем сумму перекупок
-                
+
                 $last_booking = $r_org->where('orgtech_id', $org->id)->orderBy('id','desc')->first(); //последняя запись о брони/перекупке
                 $r_sum = $r_org->where('orgtech_id', $org->id)->confirmed()->sum('price'); //сумма всех заявок для брони
                 $org->start_price = $org->start_price + $r_sum;    //прибавляем к начальной стоимости
@@ -120,13 +122,13 @@ class OrgtechController extends Controller
             return view('errors.store')->withErrors($v);
         }
 
-        
+
         if(!($this->current_data()->lessThan($this->open_auction()) || $this->current_data()->greaterThan($this->closed_auction()))) {
             $last_booking = Rate_orgtech::where('orgtech_id', $request->orgtech_id)->orderBy('id', 'desc')->first();
             if($last_booking){
                 $last_user_email = $last_booking->email;
                 $last_user_name = $last_booking->username;
-        
+
                 //редиректим и уведомляем для тех кто хочет забронировать неподтвержденных
                 //например если не обновить страницу и забронировать лот который уже забронировал кто-то другой ранее.
                 $busy_confirmed = ($last_booking->hash && !$last_booking->confirmed) ? true:false; //определем ожидает ли подтверждения лот
@@ -134,13 +136,13 @@ class OrgtechController extends Controller
                     dispatch(new SendEmailRawMessage(
                         [
                             'email' => $request->email,
-                            'message' => 'Лот, который вы пытаетесь забронировать/перекупить в данный момент ожидает подтверждения от другого пользователя: '. $last_user_name 
-                            .'. Дождитесь завершения и попробуйте снова.',   
+                            'message' => 'Лот, который вы пытаетесь забронировать/перекупить в данный момент ожидает подтверждения от другого пользователя: '. $last_user_name
+                            .'. Дождитесь завершения и попробуйте снова.',
                         ])
                     );
                     return redirect(route('orgtech.index'));
                 }
-        
+
                 if($last_user_email){
                     //уведомляем о перекупе если есть email
                     $event_rebooking = (($last_booking->hash || !$last_booking->hash) && $last_booking->confirmed) ? true:false; //если пытаются перекупить
@@ -151,11 +153,11 @@ class OrgtechController extends Controller
                                'email' => $last_user_email,
                                'message' => '
                                 Пользователь: '. $request->username .', только что сделал ставку на ваш лот:
-                                -----------------------------------------       
-                                '. $org_info->inventar .' 
+                                -----------------------------------------
+                                '. $org_info->inventar .'
                                 '. $org_info->type .'
                                 '. $org_info->model .'
-                                -----------------------------------------',   
+                                -----------------------------------------',
                             ])
                         );
                     }
@@ -163,7 +165,7 @@ class OrgtechController extends Controller
                     Log::info('e-mail для пользователя '. $last_user_name .' не указан, сообщение небыло отправлено.');
                 }
             }
-            
+
             //сохраняем ставку
             $org = new Rate_orgtech;
             $org->username = $request->username;
@@ -173,18 +175,18 @@ class OrgtechController extends Controller
             $org->ip = $request->ip;
             $org->hash = hash('sha256', $request->ip.'_'.$request->email .'_'. $this->current_data());
             (Rate_orgtech::where('orgtech_id', $request->orgtech_id)->count()) ? $org->price = 500 : $org->price = 0;
-            $org->save();   
-    
+            $org->save();
+
             //отправляем почту в очердь
             dispatch(new SendEmailOrgtech(
                 [
                     'org_id' => $request->orgtech_id,
                     'username' => $request->username,
                     'email' => $request->email,
-                    'price' => $org->price,   
+                    'price' => $org->price,
                 ])
             );
-            
+
             //запускаем через 5 минут проверку, если не подтвердили удаляем запись.
             dispatch(new DeleteNotConfirmed($org->hash, 'org'))->delay(Carbon::now()->addMinutes($this->config('TIME_CONFIRMATION')));
             return redirect(route('orgtech.index'));

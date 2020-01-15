@@ -3,12 +3,12 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <span class="btn">Оргтехника</span> 
+                        <span class="btn">Оргтехника</span>
                         <div class="float-right">
                             <span class="btn">Данные обновятся через {{ timeToUpdate }} сек.</span>
                             <button class="btn btn-light float-right" @click="update" >Обновить</button>
                         </div>
-                    </div> 
+                    </div>
 
                     <div class="card-body">
                         <!-- {{ items }} -->
@@ -47,7 +47,7 @@
                                 <!-- @if(!$pc->is_booked) -->
                                     <div v-if="!item.is_booked">
                                         <!-- @if($pc->reserved) -->
-                                        <span class="small booked_date" v-if="item.reserved">Лот ожидает подтверждения</span> 
+                                        <span class="small booked_date" v-if="item.reserved">Лот ожидает подтверждения</span>
                                         <!-- @else -->
                                         <a href="#" class="btn btn-primary btn-block" data-toggle="modal" data-target="#booking" :data-whatever="item.id" v-if="!item.reserved">Забронировать</a>
                                         <!-- @endif -->
@@ -55,7 +55,7 @@
                                 <!-- @else -->
                                     <div v-if="item.is_booked">
                                         <a href="#" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#rebooking" :data-whatever="item.id">Перекупить</a>
-                                    </div>   
+                                    </div>
                                 <!-- @endif -->
                             <!-- @endif -->
                                 </div>
@@ -80,12 +80,12 @@
                     data: null
                 },
                 whatever: null,
-                timeToUpdate: 30,
+                timeToUpdate: 10,
             }
         },
         created() {
                 axios.get('./api/orgtechs')
-                     .then(response => (this.items = response));     
+                     .then(response => (this.items = response));
         },
         mounted() {
             console.log('orgtechsComponent loaded')
@@ -117,7 +117,7 @@
             update() {
                 axios.get('./api/orgtechs')
                  .then(response => (this.items = response));
-                this.timeToUpdate = 30;
+                this.timeToUpdate = 10;
             }
         }
     }
