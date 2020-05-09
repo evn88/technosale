@@ -12,7 +12,7 @@
     <link href="{{ asset('css/tablesorter/theme.bootstrap_4.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/tablesorter/jquery.tablesorter.pager.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    
+
 </head>
 <body>
     <div>
@@ -20,7 +20,7 @@
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
-                    
+
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -35,14 +35,12 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('orgtech.index') }}">Оргтехника</a>
                         </li>
-                        
+
                     </ul>
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
-                            <li class="nav-item">
-                                <span class="nav-link alert-info">Работает с @get_config(AUCTION_OPEN_DATA) по @get_config(AUCTION_CLOSED_DATA)</span>
-                            </li>
+
                         <!-- Authentication Links -->
                         @guest
                             <li class="nav-item">

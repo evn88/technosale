@@ -29,7 +29,7 @@
                     <!--Table head-->
                     <!--Table body-->
                     <tbody>
-                        <tr v-for="item in items.data">
+                        <tr v-for="item in items.data" v-bind:key="item.id">
                             <td>{{ item.filial }}</td>
                             <td align="center">{{ item.inventar }}</td>
                             <td>{{ item.pcconfig }}</td>
@@ -45,7 +45,7 @@
                                 <!-- @if(!$pc->is_booked) -->
                                     <div v-if="!item.is_booked">
                                         <!-- @if($pc->reserved) -->
-                                        <span class="small booked_date" v-if="item.reserved">Лот ожидает подтверждения</span> 
+                                        <span class="small booked_date" v-if="item.reserved">Лот ожидает подтверждения</span>
                                         <!-- @else -->
                                         <a href="#" class="btn btn-primary btn-block" data-toggle="modal" data-target="#booking" :data-whatever="item.id" v-if="!item.reserved">Забронировать</a>
                                         <!-- @endif -->
@@ -53,7 +53,7 @@
                                 <!-- @else -->
                                     <div v-if="item.is_booked">
                                         <a href="#" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#rebooking" :data-whatever="item.id">Перекупить</a>
-                                    </div>   
+                                    </div>
                                 <!-- @endif -->
                             <!-- @endif -->
                                 </div>
@@ -78,7 +78,7 @@
                     data: null
                 },
                 whatever: null,
-                timeToUpdate: 30,
+                timeToUpdate: 10,
             }
         },
 
@@ -95,7 +95,7 @@
                 this.timeToUpdate--;
             }, 1000);
 
-            console.log('computersComponent loaded')      
+            console.log('computersComponent loaded')
         },
         updated() {
 
@@ -118,7 +118,7 @@
             update() {
                 axios.get('./api/computers')
                  .then(response => (this.items = response));
-                this.timeToUpdate = 30;
+                this.timeToUpdate = 10;
             }
         }
     }

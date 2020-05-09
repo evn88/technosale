@@ -14,9 +14,14 @@ use Illuminate\Support\Facades\Log;
 
 class ComputerController extends Controller
 {
-    private function config($n) { 
+    public function __construct()
+    {
+
+    }
+
+    private function config($n) {
         if ($n) {
-            return Config::where('name', $n)->first()->param; 
+            return Config::where('name', $n)->first()->param;
         } else  {
             return NULL;
         }
@@ -32,13 +37,16 @@ class ComputerController extends Controller
     public function index()
     {
         //dd($this->config('AUCTION_OPEN_DATA'));
-        return view('computer');
+        return view('computer', [
+            'conf' => 'Открытие: ' .$this->config('AUCTION_OPEN_DATA'). ' | Закрытие: ' . $this->config('AUCTION_CLOSED_DATA')
+        ]);
     }
 
     public function total()
     {
+        //отчет по компьютерам
         $comps = Article_pc::orderBy('year')->get();
-        
+
         //проверка брони
         foreach ($comps as &$pc){
             $r_pc = new Rate_pc;
@@ -49,9 +57,9 @@ class ComputerController extends Controller
                 $pc->total_price = $pc->start_price + $r_sum;    //прибавляем к начальной стоимости
                 if ($last_booking->confirmed){
                     $pc->is_booked = true; //ставим пометку о перекупе
-                } else { 
-                    if ($last_booking->hash) { $pc->reserved = true; } 
-                    $pc->is_booked = false; 
+                } else {
+                    if ($last_booking->hash) { $pc->reserved = true; }
+                    $pc->is_booked = false;
                 }
 
                 $pc->booked_user = $last_booking->username; //кто последний купил
@@ -69,7 +77,7 @@ class ComputerController extends Controller
     public function json()
     {
         $comps = Article_pc::orderBy('year')->get();
-        
+
         //проверка брони
         foreach ($comps as &$pc){
             $r_pc = new Rate_pc;
@@ -80,9 +88,9 @@ class ComputerController extends Controller
                 $pc->start_price = $pc->start_price + $r_sum;    //прибавляем к начальной стоимости
                 if ($last_booking->confirmed){
                     $pc->is_booked = true; //ставим пометку о перекупе
-                } else { 
-                    if ($last_booking->hash) { $pc->reserved = true; } 
-                    $pc->is_booked = false; 
+                } else {
+                    if ($last_booking->hash) { $pc->reserved = true; }
+                    $pc->is_booked = false;
                 }
 
                 $pc->booked_user = $last_booking->username; //кто последний купил
@@ -137,7 +145,7 @@ class ComputerController extends Controller
             if($last_booking){
                 $last_user_email = $last_booking->email;
                 $last_user_name = $last_booking->username;
-                
+
                 //редиректим и уведомляем для тех кто хочет забронировать неподтвержденных
                 //например если не обновить страницу и забронировать лот который уже забронировал кто-то другой ранее.
                 $busy_confirmed = ($last_booking->hash && !$last_booking->confirmed) ? true:false; //определем ожидает ли подтверждения лот
@@ -145,15 +153,15 @@ class ComputerController extends Controller
                     dispatch(new SendEmailRawMessage(
                         [
                             'email' => $request->email,
-                            'message' => 'Лот, который вы пытаетесь забронировать/перекупить в данный момент ожидает подтверждения от другого пользователя: '. $last_user_name 
-                            .'. Дождитесь завершения и попробуйте снова.',   
+                            'message' => 'Лот, который вы пытаетесь забронировать/перекупить в данный момент ожидает подтверждения от другого пользователя: '. $last_user_name
+                            .'. Дождитесь завершения и попробуйте снова.',
                         ])
                     );
                     return redirect(route('computer.index'));
                 }
-        
+
                 if($last_user_email){
-                    
+
                     //уведомляем о перекупе если есть email
                     $event_rebooking = (($last_booking->hash || !$last_booking->hash) && $last_booking->confirmed) ? true:false; //если пытаются перекупить
                     $pc_info = Article_pc::where('id', $request->pc_id)->first();
@@ -163,11 +171,11 @@ class ComputerController extends Controller
                                'email' => $last_user_email,
                                'message' => '
                                 Пользователь: '. $request->username .', только что сделал ставку на ваш лот:
-                                -----------------------------------------       
-                                ' . $pc_info->inventar .' 
+                                -----------------------------------------
+                                ' . $pc_info->inventar .'
                                 ' . $pc_info->pcconfig .'
                                 ' . $pc_info->monitor . '
-                                -----------------------------------------',   
+                                -----------------------------------------',
                             ])
                         );
                     }
@@ -175,7 +183,7 @@ class ComputerController extends Controller
                     Log::info('e-mail для пользователя '. $last_user_name .' не указан, сообщение небыло отправлено.');
                 }
             }
-            
+
             // сохраняем ставку
             $pc = new Rate_pc;
             $pc->username = $request->username;
@@ -185,18 +193,18 @@ class ComputerController extends Controller
             $pc->ip = $request->ip;
             $pc->hash = hash('sha256',$request->ip  .'_'. $request->email .'_'. $this->current_data());
             (Rate_pc::where('pc_id', $request->pc_id)->count()) ? $pc->price = 500 : $pc->price = 0;
-            $pc->save(); 
-    
+            $pc->save();
+
             //отправляем почту в очердь
             dispatch(new SendEmailComputers(
                 [
                     'pc_id' => $request->pc_id,
                     'username' => $request->username,
                     'email' => $request->email,
-                    'price' => $pc->price,   
+                    'price' => $pc->price,
                 ])
             );
-            
+
             //запускаем через 5 минут проверку, если не подтвердили удаляем запись.
             dispatch(new DeleteNotConfirmed($pc->hash, 'pc'))->delay(Carbon::now()->addMinutes($this->config('TIME_CONFIRMATION')));
             return redirect(route('computer.index'));
@@ -205,7 +213,7 @@ class ComputerController extends Controller
             'closed' => $this->closed_auction()->format('d.m.Y H:m:s'),
             'open'   => $this->open_auction()->format('d.m.Y H:m:s')
         ]);
-        
+
     }
 
     /**
